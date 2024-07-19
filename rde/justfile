@@ -1,0 +1,26 @@
+# args := if env('FIRST') == 'yep' {`gt -c 'min values at: substituteUrls asOption}
+substitutes := if env('FIRST', 'yep') == 'yep' { '--substitute-urls=https://bordeaux.guix.gnu.org\ https://cuirass.genenetwork.org\ http://ci.guix.trop.in\ https://substitutes.nonguix.org' } else { '' }
+cfg:= 'cfg.scm'
+chans:= 'chans.scm'
+profile:= 'profile'
+
+alias hc := homeCfg
+alias sc := sysCfg
+alias hb := homeBld
+alias sb := sysBld
+alias g := guix
+
+guix *_='describe':
+    {{profile}}/bin/guix  {{_}}
+cfg *_: (guix _ cfg substitutes)
+home *_: (cfg 'home' _)
+sys *_: (cfg 'system' _)
+homeCfg: (home 'reconfigure')
+sysCfg: (sys 'reconfigure')
+homeBld: (home 'build')
+sysBld: (sys 'build')
+pull: (guix 'pull -C' chans '-p' profile)
+bump: && pull (guix 'describe -f channels > ' chans)
+    ./bump.scm {{chans}}
+
+       
