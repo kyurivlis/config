@@ -17,7 +17,7 @@ guix *_='describe':
 cfg *_: (guix _ cfg substitutes)
 home *_: (cfg 'home' _)
 sys *_:
-    sudo just cfg system {{_}}
+    sudo --preserve-env=GUIX_PROFILE TRG='sys' just cfg system {{_}}
 homeCfg: (home 'reconfigure')
 sysCfg: (sys 'reconfigure')
 homeBld: (home 'build')
@@ -30,3 +30,9 @@ bump: && pull (guix 'describe -f channels > ' chans)
 repl:
     guile -c '((@ (ares server) run-nrepl-server))'&
        
+mkswap $f='/swap/swapfile':
+    mkdir /swap
+    touch {{f}}
+    fallocate -l 512M {{f}}
+    mkswap {{f}}
+    chmod 0660 {{f}}
