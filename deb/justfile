@@ -1,0 +1,13 @@
+ssh:
+	ssh-keygen
+	ssh-copy-id 192.168.1.64
+
+cl:
+	cd /tmp && curl -O https://beta.quicklisp.org/quicklisp.lisp
+	sbcl --load /tmp/quicklisp.lisp --eval '(progn (quicklisp-quickstart:install) (ql:add-to-init-file) (ql:quickload :consfigurator))'
+	ln -sT ~/c/deb ~/quicklisp/local-projects/deb
+
+consfigure:
+	sbcl --eval '(ql:quickload :ouah.ml.consfig)' --eval '(in-package :ouah.ml.consfig)' --eval '(192.168.1.64)'
+
+init: ssh cl consfigure

@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+echo '
+deb http://deb.debian.org/debian/ bookworm-backports main' | sudo tee /etc/apt/sources.list
+sudo apt update
+sudo apt install \
+     git curl sbcl guix nix i3 xorg firefox-esr build-essential
+sudo apt build-dep cl-consfigurator
+
+# fix substitutes
+service=/lib/systemd/system/guix-daemon.service
+sudo sed -i '/guixbuild/ s/$/ --substitute-urls="https:\/\/bordeaux.guix.gnu.org\ https:\/\/cuirass.genenetwork.org\ http:\/\/ci.guix.trop.in"/' $service
+
+sudo systemctl daemon-reload
+sudo systemctl restart guix-daemon
+# update guix
+guix pull
+GUIX_PROFILE="/home/kyurivlis/.config/guix/current"
+. "$GUIX_PROFILE/etc/profile"
+
+# consfigure prep
+cp ssh/config ~/.ssh
+sudo sed -i 's/%sudo	ALL=(ALL:ALL) ALL/%sudo	ALL=(ALL:ALL) NOPASSWD:ALL/' /etc/sudoers
+
+#finally
+guix install just
+just init

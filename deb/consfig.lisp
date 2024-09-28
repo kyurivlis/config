@@ -2,7 +2,7 @@
 (in-consfig "ouah.ml.consfig")
 (named-readtables:in-readtable :consfigurator)
 
-(defhost 192.168.1.169
+(defhost 192.168.1.64
     (:deploy ((:ssh :user "kyurivlis") :sudo :sbcl))
   "Work VM"
   (os:debian-stable "bookworm" :amd64)

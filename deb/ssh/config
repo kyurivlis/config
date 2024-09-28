@@ -1,0 +1,4 @@
+host *
+     controlmaster auto
+     controlpath /run/user/%i/ssh-%C
+     controlpersist 900
