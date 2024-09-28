@@ -84,11 +84,12 @@
    (append
     (list
      (@ (gnu packages tree-sitter) tree-sitter-clojure)
-     (@ (gnu packages tree-sitter) tree-sitter-html))
+     (@ (gnu packages tree-sitter) tree-sitter-html)
+     (@ (nongnu packages mozilla) firefox))
     (strings->packages
-     "nyxt" "yt-dlp" "curl" "firefox"
+     "nyxt" "yt-dlp" "curl"
      "fd" "ripgrep" "recutils" "binutils" "gdb" "stow"
-     "imagemagick" "ffmpeg" "make"
+     "imagemagick"  "make"
      "pavucontrol" "alsa-utils"
      "adwaita-icon-theme"))))
 
@@ -167,17 +168,28 @@
 
 (define ahlinux
   (feature-kernel
-   #:kernel linux
+   #:kernel linux-lts
    #:initrd microcode-initrd
    #:firmware (list linux-firmware)
    #:kernel-arguments '("net.ifnames=0")))
 
 (define ahlinuxlibre
-  (feature-kernel))
+  (feature-kernel
+   #:kernel linux-libre))
 
-(define adhosts (map make-adhost (stringify '(tp vm hp wv ez)) (map list (list ahext4 ahext4 ahbtrfs ahbtrfs ahbtrfs)) (list ahlinux ahlinuxlibre ahlinux ahlinuxlibre ahlinux)))
+(define adhosts (map make-adhost (stringify '(tp vm hp wv ez nl))
+                     (list ahext4 ahext4 ahbtrfs ahbtrfs ahbtrfs ahbtrfs)
+                     (list ahlinux ahlinuxlibre ahlinux ahlinuxlibre ahlinux ahlinuxlibre)))
 
 (define myhost (car (find-tail (lambda (h) (string= (or (getenv "HOSTNAME") (gethostname)) (ahname h))) adhosts)))
+;; (define myhost (make-adhost
+;;                 "nl"
+;;                 (file-system
+;;                         (device (uuid "d6d9bccc-ca0c-4579-abf2-dabf9c02c579"))
+;;                         (mount-point "/")
+;; 			(options "compress=zstd,discard=async")
+;;                         (type "btrfs"))
+;;                 ahlinux))
 
 (define host-features
   (list
@@ -194,7 +206,7 @@
    (ahkernel myhost)
    (feature-file-systems
     #:file-systems
-    (append (ahrootfs myhost)
+    (cons (ahrootfs myhost)
             (if (efi-sys?)
                 (list (file-system
                        (device (file-system-label "efi"))
@@ -216,7 +228,7 @@
        (feature-emacs-exwm-run-on-tty)
        (feature-emacs-ednc))
       (list
-       (feature-emacs)
+       (feature-emacs #:emacs emacs)
        (feature-sway)
        (feature-emacs-power-menu)
        (feature-sway-run-on-tty)
