@@ -1,10 +1,12 @@
+c: consfigure
+
+
 ssh:
-	ssh-keygen
 	ssh-copy-id 192.168.1.64
 
 cl:
 	cd /tmp && curl -O https://beta.quicklisp.org/quicklisp.lisp
-	sbcl --load /tmp/quicklisp.lisp --eval '(progn (quicklisp-quickstart:install) (ql:add-to-init-file) (ql:quickload :consfigurator))'
+	sbcl --load /tmp/quicklisp.lisp --eval '(quicklisp-quickstart:install)' --eval '(ql:add-to-init-file)' --eval '(quit)'
 	ln -sT ~/c/deb ~/quicklisp/local-projects/deb
 
 consfigure:

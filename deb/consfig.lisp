@@ -32,7 +32,7 @@
    (file:symlinked :from "/home/kyurivlis/.local/bin/gt" :to "/home/kyurivlis/s/dist/gt/bin/GlamorousToolkit")
 
   
-   (apt:backports-installed "emacs-gtk" "emacs-el")
+   ;; (apt:backports-installed "emacs-gtk" "emacs-el")
    (apt:installed "i3" "dmenu" "xinit" "stterm" "firefox-esr" "build-essential" "unzip"
                   "virtualbox-guest-x11")
    (apt:removed "rxvt-unicode"))

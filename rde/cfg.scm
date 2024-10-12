@@ -85,7 +85,8 @@
     (list
      (@ (gnu packages tree-sitter) tree-sitter-clojure)
      (@ (gnu packages tree-sitter) tree-sitter-html)
-     (@ (nongnu packages mozilla) firefox))
+     ;; (@ (nongnu packages mozilla) firefox)
+     )
     (strings->packages
      "nyxt" "yt-dlp" "curl"
      "fd" "ripgrep" "recutils" "binutils" "gdb" "stow"
@@ -224,21 +225,23 @@
   (if (string= (gethostname) "wv")
       (list
        (feature-emacs #:emacs emacs)
-       (feature-emacs-exwm)
-       (feature-emacs-exwm-run-on-tty)
+       ;; (feature-emacs-exwm)
+       ;; (feature-emacs-exwm-run-on-tty)
        (feature-emacs-ednc))
       (list
        (feature-emacs #:emacs emacs)
-       (feature-sway)
-       (feature-emacs-power-menu)
-       (feature-sway-run-on-tty)
-       (feature-sway-screenshot)
-       ;; (feature-sway-statusbar
-       ;;  #:use-global-fonts? #f)
-       (feature-swaynotificationcenter)
-       (feature-waybar)
-       (feature-swayidle)
-       (feature-swaylock))))
+       (feature-emacs-ednc)
+       ;; (feature-sway)
+       ;; (feature-emacs-power-menu)
+       ;; (feature-sway-run-on-tty)
+       ;; (feature-sway-screenshot)
+       ;; ;; (feature-sway-statusbar
+       ;; ;;  #:use-global-fonts? #f)
+       ;; (feature-swaynotificationcenter)
+       ;; (feature-waybar)
+       ;; (feature-swayidle)
+       ;; (feature-swaylock)
+       )))
 
 ;;;; Other
 (define other-features
@@ -316,7 +319,7 @@
 
    (feature-emacs-pdf-tools)
    (feature-emacs-nov-el)
-   (feature-emacs-org-protocol)
+;   (feature-emacs-org-protocol)
 
    (feature-emacs-smartparens
     #:show-smartparens? #t)

@@ -2,7 +2,7 @@
 substitutes := if env('FIRST', 'yep') == 'yep' { '--substitute-urls=https://bordeaux.guix.gnu.org\ https://cuirass.genenetwork.org\ http://ci.guix.trop.in\ https://substitutes.nonguix.org' } else { '' }
 cfg:= 'cfg.scm'
 chans:= 'chans.scm'
-profile:= env('GUIX_PROFILE','/run/current-system/profile')
+guixdir:= if path_exists('profile') == "true" { 'profile' } else { '/usr/local' }
 
 alias hc := homeCfg
 alias sc := sysCfg
@@ -12,7 +12,7 @@ alias g := guix
 
 dwim: homeCfg sysCfg
 guix *_='describe':
-    {{profile}}/bin/guix {{_}}
+    {{guixdir}}/bin/guix {{_}}
 cfg *_: (guix _ cfg substitutes)
 home *_: (cfg 'home' _)
 sys *_:
@@ -37,5 +37,5 @@ mkswap $f='/swap/swapfile':
 
 nonguix:
 	curl https://substitutes.nonguix.org/signing-key.pub > /tmp/nonguix.key
-	guix archive --authorize < /tmp/nonguix.key
+	cat /tmp/nonguix.key | sudo guix archive --authorize
 	rm /tmp/nonguix.key

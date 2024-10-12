@@ -1,13 +1,18 @@
 #!/usr/bin/env bash
 echo '
-deb http://deb.debian.org/debian/ bookworm-backports main' | sudo tee /etc/apt/sources.list
+deb http://deb.debian.org/debian/ bookworm-backports main' | sudo tee -a /etc/apt/sources.list
 sudo apt update
-sudo apt install \
-     git curl sbcl guix nix i3 xorg firefox-esr build-essential
+sudo apt install git curl sbcl nix i3 xorg firefox-esr build-essential
 sudo apt build-dep cl-consfigurator
 
+cd /tmp
+wget https://git.savannah.gnu.org/cgit/guix.git/plain/etc/guix-install.sh
+chmod +x guix-install.sh
+sudo ./guix-install.sh
+
+
 # fix substitutes
-service=/lib/systemd/system/guix-daemon.service
+service=/etc/systemd/system/guix-daemon.service
 sudo sed -i '/guixbuild/ s/$/ --substitute-urls="https:\/\/bordeaux.guix.gnu.org\ https:\/\/cuirass.genenetwork.org\ http:\/\/ci.guix.trop.in"/' $service
 
 sudo systemctl daemon-reload
@@ -18,9 +23,18 @@ GUIX_PROFILE="/home/kyurivlis/.config/guix/current"
 . "$GUIX_PROFILE/etc/profile"
 
 # consfigure prep
+ssh-keygen
 cp ssh/config ~/.ssh
 sudo sed -i 's/%sudo	ALL=(ALL:ALL) ALL/%sudo	ALL=(ALL:ALL) NOPASSWD:ALL/' /etc/sudoers
 
 #finally
-guix install just
+guix install just guile
+GUIX_PROFILE="/home/kyurivlis/.guix-profile"
+. "$GUIX_PROFILE/etc/profile"
+
 just init
+cd ~/c/rde
+echo /home/kyurivlis/c/rde >> /home/kyurivlis/.config/guix/shell-authorized-directories
+guix shell
+just bump
+just dwim
