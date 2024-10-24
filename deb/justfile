@@ -2,7 +2,7 @@ c: consfigure
 
 
 ssh:
-	ssh-copy-id 192.168.1.64
+	ssh-copy-id localhost
 
 cl:
 	cd /tmp && curl -O https://beta.quicklisp.org/quicklisp.lisp
@@ -10,6 +10,14 @@ cl:
 	ln -sT ~/c/deb ~/quicklisp/local-projects/deb
 
 consfigure:
-	sbcl --eval '(ql:quickload :ouah.ml.consfig)' --eval '(in-package :ouah.ml.consfig)' --eval '(192.168.1.64)'
+	sbcl --eval '(ql:quickload :ouah.ml.consfig)' --eval '(in-package :ouah.ml.consfig)' --eval '(localhost)' --eval '(cl-user::quit)'
 
-init: ssh cl consfigure
+nix:
+        ln -s ~/c/deb/nix ~/.config/
+        nix-channel --add https://github.com/nix-community/nixGL/archive/main.tar.gz nixgl && nix-channel --update
+        nix-env -iA nixgl.auto.nixGLDefault
+
+rust:
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+init: ssh nix cl consfigure rust

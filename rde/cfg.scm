@@ -88,7 +88,7 @@
      ;; (@ (nongnu packages mozilla) firefox)
      )
     (strings->packages
-     "nyxt" "yt-dlp" "curl"
+     "nyxt" "yt-dlp" "curl" "nss-certs"
      "fd" "ripgrep" "recutils" "binutils" "gdb" "stow"
      "imagemagick"  "make"
      "pavucontrol" "alsa-utils"
@@ -224,13 +224,16 @@
 (define gui-features
   (if (string= (gethostname) "wv")
       (list
-       (feature-emacs #:emacs emacs)
+       (feature-emacs #:emacs emacs
+                      ;; #:extra-early-init-el `((load-file "~/c/emacs/early-init.el"))
+                      ;; #:extra-init-el `((load-file "~/c/emacs/init.el"))
+                      )
        ;; (feature-emacs-exwm)
        ;; (feature-emacs-exwm-run-on-tty)
        (feature-emacs-ednc))
       (list
-       (feature-emacs #:emacs emacs)
-       (feature-emacs-ednc)
+       ;; (feature-emacs #:emacs emacs)
+       ;; (feature-emacs-ednc)
        ;; (feature-sway)
        ;; (feature-emacs-power-menu)
        ;; (feature-sway-run-on-tty)
@@ -276,7 +279,7 @@
 ;;  (feature-imv)
 ;;  (feature-ledger)
   (feature-mpv)
-  (feature-transmission #:auto-start? #f)
+  ;; (feature-transmission #:auto-start? #f)
 
 ;;;;; Dev
    (feature-bash)
@@ -331,7 +334,8 @@
   (list
    (feature-zsh
     #:zprofile
-    `("source /etc/profile"))
+    `("source /etc/profile"
+      "source \"HOME\"/.cargo/env"))
 
    (feature-emacs-portable)
    (feature-fonts)
@@ -355,7 +359,8 @@
      (feature-emacs-modus-themes)))
 
 ;;; Dispatch
-(define cfg (rde-config (features (append core-features host-features gui-features other-features emacs-features))))
+(define cfg (rde-config (features (append core-features host-features gui-features other-features ;; emacs-features
+))))
 (define os (rde-config-operating-system cfg))
 (define home (rde-config-home-environment cfg))
 

@@ -22,16 +22,21 @@ guix pull
 GUIX_PROFILE="/home/kyurivlis/.config/guix/current"
 . "$GUIX_PROFILE/etc/profile"
 
+# nix
+sudo adduser kyurivlis nix-users
+nix-channel --add https://nixos.org/channels/nixpkgs-unstable
+sudo -U kyurivlis nix-channel --update
+
 # consfigure prep
 ssh-keygen
 cp ssh/config ~/.ssh
 sudo sed -i 's/%sudo	ALL=(ALL:ALL) ALL/%sudo	ALL=(ALL:ALL) NOPASSWD:ALL/' /etc/sudoers
 
 #finally
-guix install just guile
+guix install just guile glibc-locales
 GUIX_PROFILE="/home/kyurivlis/.guix-profile"
 . "$GUIX_PROFILE/etc/profile"
-
+cd ~/c/deb
 just init
 cd ~/c/rde
 echo /home/kyurivlis/c/rde >> /home/kyurivlis/.config/guix/shell-authorized-directories
