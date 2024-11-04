@@ -39,7 +39,7 @@
 
 ;; FIXME shadow bug, config fields -> unbound variables.
 (use-most-cfg-modules)
-(use-modules (rde features xdg) (gnu services web))
+(use-modules (rde features xdg) (gnu services web) (gnu services xorg) (gnu services sddm))
 
 ;;; Util
 (define* (mail-acc id user #:optional (type 'gmail))
@@ -85,7 +85,7 @@
     (list
      (@ (gnu packages tree-sitter) tree-sitter-clojure)
      (@ (gnu packages tree-sitter) tree-sitter-html)
-     ;; (@ (nongnu packages mozilla) firefox)
+     (@ (nongnu packages mozilla) firefox)
      )
     (strings->packages
      "nyxt" "yt-dlp" "curl" "nss-certs"
@@ -221,41 +221,21 @@
    ))
 
 ;;;; GUI
-(define gui-features
-  (if (string= (gethostname) "wv")
-      (list
-       (feature-emacs #:emacs emacs
-                      ;; #:extra-early-init-el `((load-file "~/c/emacs/early-init.el"))
-                      ;; #:extra-init-el `((load-file "~/c/emacs/init.el"))
-                      )
-       ;; (feature-emacs-exwm)
-       ;; (feature-emacs-exwm-run-on-tty)
-       (feature-emacs-ednc))
-      (list
-       ;; (feature-emacs #:emacs emacs)
-       ;; (feature-emacs-ednc)
-       ;; (feature-sway)
-       ;; (feature-emacs-power-menu)
-       ;; (feature-sway-run-on-tty)
-       ;; (feature-sway-screenshot)
-       ;; ;; (feature-sway-statusbar
-       ;; ;;  #:use-global-fonts? #f)
-       ;; (feature-swaynotificationcenter)
-       ;; (feature-waybar)
-       ;; (feature-swayidle)
-       ;; (feature-swaylock)
-       )))
+(define gui-features '())
 
 ;;;; Other
 (define other-features
   (list
 ;;;;; Misc
-   (feature-base-packages #:system-packages (list nix))
+   (feature-base-packages #:system-packages (list nix  i3-wm    emacs emacs-exwm emacs-desktop-environment))
    (feature-custom-services
     #:feature-name-prefix 'qeqpep
     #:system-services
     (list
      (service nix-service-type)
+     (service sddm-service-type
+	      (sddm-configuration
+	       (auto-login-user "kyurivlis")))
      (service httpd-service-type
               (httpd-configuration
                (config
@@ -296,67 +276,49 @@
 ;;;;; Emacs
 (define emacs-features
   (list
-   (feature-emacs-tab-bar)
-   (feature-emacs-vertico)
-   (feature-emacs-completion)
-   (feature-emacs-corfu)
-   (feature-emacs-appearance)
-   (feature-emacs-modus-themes)
-   (feature-emacs-dashboard)
-      (feature-emacs-tramp)
-   (feature-emacs-project)
-   (feature-compile)
-   (feature-emacs-input-methods)
-   (feature-emacs-which-key)
-   (feature-emacs-dired)
-   (feature-emacs-eshell)
-   (feature-emacs-monocle)
+;;    (feature-emacs-tab-bar)
+;;    (feature-emacs-vertico)
+;;    (feature-emacs-completion)
+;;    (feature-emacs-corfu)
+;;    (feature-emacs-appearance)
+;;    (feature-emacs-modus-themes)
+;;    (feature-emacs-dashboard)
+;;       (feature-emacs-tramp)
+;;    (feature-emacs-project)
+;;    (feature-compile)
+;;    (feature-emacs-input-methods)
+;;    (feature-emacs-which-key)
+;;    (feature-emacs-dired)
+;;    (feature-emacs-eshell)
+;;    (feature-emacs-monocle)
 
-;;   (feature-emacs-message)
-   ;; (feature-emacs-erc
-   ;;  #:erc-log? #t
-   ;;  #:erc-autojoin-channels-alist '((Libera.Chat "#rde")))
-   (feature-emacs-telega)
-   (feature-emacs-elpher)
-   (feature-emacs-webpaste)
+;; ;;   (feature-emacs-message)
+;;    ;; (feature-emacs-erc
+;;    ;;  #:erc-log? #t
+;;    ;;  #:erc-autojoin-channels-alist '((Libera.Chat "#rde")))
+;;    (feature-emacs-telega)
+;;    (feature-emacs-elpher)
+;;    (feature-emacs-webpaste)
 
-   (feature-emacs-pdf-tools)
-   (feature-emacs-nov-el)
-;   (feature-emacs-org-protocol)
+;;    (feature-emacs-pdf-tools)
+;;    (feature-emacs-nov-el)
+;; ;   (feature-emacs-org-protocol)
 
-   (feature-emacs-smartparens
-    #:show-smartparens? #t)
-   (feature-emacs-eglot)
+;;    (feature-emacs-smartparens
+;;     #:show-smartparens? #t)
+;;    (feature-emacs-eglot)
    ))
 
 ;;;; Minimal
 (define min-features
   (list
-   (feature-zsh
-    #:zprofile
-    `("source /etc/profile"
-      "source \"HOME\"/.cargo/env"))
-
-   (feature-emacs-portable)
-   (feature-fonts)
-
-     (feature-emacs-keycast #:turn-on? #t)
-     (feature-emacs-which-key)
-     (feature-emacs-vertico)
-     (feature-emacs-completion)
-     (feature-emacs-eshell)
-
-     (feature-vterm)
-     (feature-git #:sign-commits? #f)
-     (feature-emacs-git)
-     (feature-emacs-project)
-     (feature-emacs-org)
-     (feature-emacs-org-roam
-      #:org-roam-directory "~/o/wiki")
-     (feature-emacs-org-agenda
-      #:org-agenda-files '("~/o/todo.org"))
-     (feature-emacs-appearance)
-     (feature-emacs-modus-themes)))
+   (feature-networking)
+   (feature-bash)
+   ;; (feature-zsh
+   ;;  #:zprofile
+   ;;  `("source /etc/profile"
+   ;;    "source \"HOME\"/.cargo/env"))
+   ))
 
 ;;; Dispatch
 (define cfg (rde-config (features (append core-features host-features gui-features other-features ;; emacs-features

@@ -2,7 +2,8 @@
 substitutes := if env('FIRST', 'yep') == 'yep' { '--substitute-urls=https://bordeaux.guix.gnu.org\ https://cuirass.genenetwork.org\ http://ci.guix.trop.in\ https://substitutes.nonguix.org' } else { '' }
 cfg:= 'cfg.scm'
 chans:= 'chans.scm'
-guixdir:= if path_exists('profile') == "true" { 'profile' } else { '/usr/local' }
+guixdir:= if path_exists('profile') == "true" { 'profile' } else { '~/.config/guix/current' }
+sudo:= 'sudo --preserve-env=GUIX_PROFILE,FIRST,HOSTNAME'
 
 alias hc := homeCfg
 alias sc := sysCfg
@@ -10,13 +11,14 @@ alias hb := homeBld
 alias sb := sysBld
 alias g := guix
 
+
 dwim: homeCfg sysCfg
 guix *_='describe':
     {{guixdir}}/bin/guix {{_}}
-cfg *_: (guix _ cfg substitutes)
+cfg *_ : (guix _ cfg substitutes)
 home *_: (cfg 'home' _)
 sys *_:
-    sudo --preserve-env=GUIX_PROFILE,FIRST,HOSTNAME TRG='sys' just cfg system {{_}}
+    {{sudo}} TRG='sys' just cfg system {{_}}
 homeCfg: (home 'reconfigure')
 sysCfg: (sys 'reconfigure')
 homeBld: (home 'build')
@@ -24,6 +26,15 @@ sysBld: (sys 'build')
 pull *_: (guix 'pull -C' chans _ substitutes)
 bump: && (pull '-p profile') pull (guix 'describe -f channels >' chans)
     ./bump.scm {{chans}}
+
+vm: (sys 'vm')
+
+init:
+    {{sudo}} CFG='min' TRG='sys' guix system init cfg.scm /mnt
+
+setupQemu:
+    touch /tmp/test.qcow2 && rm /tmp/test.qcow2
+    qemu-img create /tmp/test.qcow2 10G
 
 repl:
     guile -c '((@ (ares server) run-nrepl-server))'&
