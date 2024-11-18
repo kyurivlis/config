@@ -174,13 +174,17 @@
    #:firmware (list linux-firmware)
    #:kernel-arguments '("net.ifnames=0")))
 
+(define nllinux
+  (feature-kernel
+   #:kernel linux-libre-4.19))
+
 (define ahlinuxlibre
   (feature-kernel
    #:kernel linux-libre))
 
 (define adhosts (map make-adhost (stringify '(tp vm hp wv ez nl))
                      (list ahext4 ahext4 ahbtrfs ahbtrfs ahbtrfs ahbtrfs)
-                     (list ahlinux ahlinuxlibre ahlinux ahlinuxlibre ahlinux ahlinuxlibre)))
+                     (list ahlinux ahlinuxlibre ahlinux ahlinuxlibre ahlinux nllinux)))
 
 (define myhost (car (find-tail (lambda (h) (string= (or (getenv "HOSTNAME") (gethostname)) (ahname h))) adhosts)))
 ;; (define myhost (make-adhost

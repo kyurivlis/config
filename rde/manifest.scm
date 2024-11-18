@@ -1,1 +1,2 @@
-(specifications->manifest (list "guile-next" "guile-ares-rs" "just" "direnv" "curl" "qemu"))
+(specifications->manifest (list "guile-next" "guile-ares-rs" "just" "direnv" ;; "curl" "qemu"
+                                ))

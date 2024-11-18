@@ -1,9 +1,10 @@
-# args := if env('FIRST') == 'yep' {`gt -c 'min values at: substituteUrls asOption}
-substitutes := if env('FIRST', 'yep') == 'yep' { '--substitute-urls=https://bordeaux.guix.gnu.org\ https://cuirass.genenetwork.org\ http://ci.guix.trop.in\ https://substitutes.nonguix.org' } else { '' }
+# args := if env('FIRST') == '1' {`gt -c 'min values at: substituteUrls asOption}
+substitutes := if env('FIRST', '1') == '1' { '--substitute-urls=https://bordeaux.guix.gnu.org\ https://cuirass.genenetwork.org\ http://ci.guix.trop.in' } else { '' }
 cfg:= 'cfg.scm'
 chans:= 'chans.scm'
 guixdir:= if path_exists('profile') == "true" { 'profile' } else { '~/.config/guix/current' }
-sudo:= 'sudo --preserve-env=GUIX_PROFILE,FIRST,HOSTNAME'
+sudo:= 'sudo --preserve-env=GUIX_PROFILE,FIRST,HOSTNAME,FIRST'
+guix:= guixdir / 'bin/guix'
 
 alias hc := homeCfg
 alias sc := sysCfg
@@ -14,7 +15,7 @@ alias g := guix
 
 dwim: homeCfg sysCfg
 guix *_='describe':
-    {{guixdir}}/bin/guix {{_}}
+    {{guix}} {{_}}
 cfg *_ : (guix _ cfg substitutes)
 home *_: (cfg 'home' _)
 sys *_:
@@ -30,7 +31,14 @@ bump: && (pull '-p profile') pull (guix 'describe -f channels >' chans)
 vm: (sys 'vm')
 
 init:
-    {{sudo}} CFG='min' TRG='sys' guix system init cfg.scm /mnt
+    {{sudo}} CFG='min' TRG='sys' guix system init {{cfg}} /mnt {{substitutes}}
+
+mount:
+    sudo mount -L main -o subvolid=5 /mnt
+    sudo mount -L efi /mnt/boot/efi
+
+initDeb:
+    {{sudo}} TRG='sys' {{guix}} system init oldcfg.scm /mnt {{substitutes}}
 
 setupQemu:
     touch /tmp/test.qcow2 && rm /tmp/test.qcow2
