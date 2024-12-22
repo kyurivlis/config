@@ -1,0 +1,146 @@
+#+PROPERTY: header-args :noweb yes
+* Hi there
+It's a keybraindump, I'm extracting useful stuff in a spec. 
+Hopefully it will result in something generally useful down the road.
+* Concepts
+At this point I'm not using any algorithms. I'm optimizing for 20key board.
+#+begin_example
+a b c d  D C B A
+e f g h   H G F E
+     i j   J I
+#+end_example
+Note the shorthand notation, it sucks, replace with code
+- 5 paired characters for 5 fingers
+- colored in row, perhaps with slight dif between sides
+#+begin_src elisp
+  (defvar kg-finger-syms    '((thumb . (⸦ . ⸧))
+      (index . (⟨ . ⟩))
+      (middle . (⟮ . ⟯))
+      (ring . (⦋ . ⦌))
+      (pinky . (⦗ . ⦘))))
+
+  (defun insert-color () (interactive)
+         (insert (read-color)))
+
+  (defvar kg-row-colors
+    '((thumb ("brown1" . "brown2") . ("brown3" . "brown4"))
+      (index ("plum1" . "plum2") . ("plum3" . "plum4"))
+      (middle ("cyan1" . "cyan2") . ("cyan3" . "cyan4"))
+      (ring ("green1" . "green2") . ("green3" . "green4"))
+      (pinky ("khaki1" . "khaki2") . ("khaki3" . "khaki4"))))
+
+  (defvar kg-finger-alphas
+    '((thumb (q . g) . (b . h))
+      (index  (c . d) . (f . n))
+      (middle (l . r) . (o . a))
+      (ring (m . t) . (u . e))
+      (pinky (v . s) . (j . i))))
+
+
+  (defmacro kg--finger-syms-map ()
+    (let))
+
+
+  (defvar-keymap kg-finger-syms
+    "s")
+   
+     
+#+end_src
+* Goal
+Simplify ergonomic command layout for modal editing. By focusing not on mnemonic patterns, but rolls, alternations, ease of pressing, position relative to other keys.
+Actually, with interactive help, you can freely mix and match mnemonics and positions, see from different perspectives. No need for additional syntax, just presentation.
+* Modal editing
+Human-Computer interface is fascinating, and until brain implants are a thing, and for a long time after that (as a curiosity), keyboards are super cool.
+Inferring context, incrementally describing the command until computer does what human means it to do.
+Most commands can be represented as 2-4 key chords right from normal or insert mode or wherever.
+Verb-thing-specifier-mod is a powerful paradigm.
+Let's not focus on ergonomics too much for now, until we've got an algorithmic analyzer.
+* Verbs.
+* Tricks
+** Using 2 keys for ergonomic 2d navigation
+- holding the other key inverses direction
+  down: 1
+  right: 2
+  left: around(1)~2
+  up: around(2)~1
+- depressing the other key after holding it has combo timeout
+- to bypass it, release mod key before base key and releasing base right after will be unmodded
+  gotta be careful!
+  
+tap 1 - down, tap 2 - right, tap 2 while holding 1 - left, tap 
+
+Structure editors are mostly about trees. Go to sibling branch, delete its children branch, etc.
+Still, going right and down is more common than left and up. Despite being one of the most repeatable commands, saving 2 most valuable taps is big. And it might prove more ergonomic to use 2 absolute best keys for all 4 directions? Easy to correct overshoot by depressing the key?
+#+begin_src elisp
+  (meow-define-keys 'normal)
+    
+#+end_src
+
+too bad, will wait for hatis
+#+name: 2k2d
+#+begin_src conf-unix
+[main]
+  j = lettermod(meta, n, 70, 80)
+  k = lettermod(meta, a, 70, 80)
+#+end_src
+
+* Keyd 
+Strangely, simpler and more powerful than kmonad?
+#+begin_src conf-unix :tangle /etc/keyd/default.conf
+  [ids]
+  ,*
+
+  [global]
+  chord_timeout = 50
+  chord_hold_timeout = 50
+  
+
+  <<sturdy>>
+
+
+#+end_src
+* Sturdy
+#+name: sturdy
+#+begin_src conf-unix
+  [main]
+    q = v
+    w = m
+    e = timeout(l, 100, overload(control, esc))
+    r = c
+    t = p
+    y = x
+    u = f
+    i = o
+    o = u
+    p = j
+    a = s
+    s = t
+    d = r
+    f = d
+    g = y
+    h = .
+    j = n
+    k = a
+    l = e
+    ; = i
+    z = z
+    x = k
+    c = q
+    v = g
+    b = w
+    n = b
+    m = h
+    , = '
+    . = ;
+    / = ,
+    ' = /
+    
+#+end_src
+* Cosonants are more useful for mnemonics
+And since ergonomic layouts often place vowels on one side of the homerow, the positional, ergonomic, repeatable commands like up\down are more suitable here. 
+* TODO Meow key defining macro sucks
+built-in is better. 
+
+# Local Variables:
+# mode: org
+# End:

@@ -46,9 +46,16 @@ setupQemu:
     touch /tmp/{{disk}} && rm /tmp/{{disk}}
     qemu-img create /tmp/{{disk}} 30G -f qcow2
 
+testInstall: getInstaller setupQemu
+
+installer:='guix-installer.iso'
+
+getInstaller:
+    find {{installer}} || echo 'get {{installer}}'
+
 makeInstaller: (guix 'system image -t iso9660 installer.scm' substitutes)
 
-runQemu installer:
+runQemu:
     sudo qemu-system-x86_64 -m 8192 -smp 4 -enable-kvm -drive file=/tmp/{{disk}} -cdrom {{installer}} -nic user -cpu host -vga virtio
 
 repl:

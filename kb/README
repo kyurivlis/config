@@ -1,0 +1,25 @@
+* Project goals
+Develop ergonomic, powerful, hackable user interface
+Subprojects follow, I'm bad at naming, but it's fun to try.
+** CornForth
+Keyboard will look like 1/3≅1/4 of Corne, have OS in Forth, and I like that it just happens to be a name of some British marxist.
+
+I like [[https://github.com/dschil138/Fulcrum][Fulcrum's]] 5-way thumb switches. and rotary encoder's won't be half bad. Will have to be parametric, probably made in ImpliciCAD.
+
+** Chinchilla
+CHording INput... something Lisp something.
+
+** Hatis
+Idk how it and CRMS relates, in narrow sense it's a text input system. In a broader it's like whole input management system (virtual keyboard), it can run commands. I don't like how it puts emphasis on Text.
+
+** CRMS
+Command Runner, Modal and Structural. 
+Can have a category theory for commands, to name them mnemonically as sequence of some symbols (in 2d, not 1d). To ease hardcore optimized binding, of course! And study the nature of text editing👓.
+** Other than keys
+Pedals/feet tracking. Face tracking, Eye tracking, Voice input.
+System will have to work with just keyboard. And be mostly independent, supplementary.
+For Stenography supplementing with sonant-cosonant voiced pair may offload fingers greatly. But is often prohibitively inconvenient..
+
+# Local Variables:
+# mode: org
+# End:
