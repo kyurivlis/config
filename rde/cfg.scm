@@ -174,17 +174,13 @@
    #:firmware (list linux-firmware)
    #:kernel-arguments '("net.ifnames=0")))
 
-(define nllinux
-  (feature-kernel
-   #:kernel linux-libre-4.19))
-
 (define ahlinuxlibre
   (feature-kernel
    #:kernel linux-libre))
 
 (define adhosts (map make-adhost (stringify '(tp vm hp wv ez nl))
                      (list ahext4 ahext4 ahbtrfs ahbtrfs ahbtrfs ahbtrfs)
-                     (list ahlinux ahlinuxlibre ahlinux ahlinuxlibre ahlinux nllinux)))
+                     (list ahlinux ahlinuxlibre ahlinux ahlinuxlibre ahlinux ahlinuxlibre)))
 
 (define myhost (car (find-tail (lambda (h) (string= (or (getenv "HOSTNAME") (gethostname)) (ahname h))) adhosts)))
 ;; (define myhost (make-adhost
@@ -196,32 +192,53 @@
 ;;                         (type "btrfs"))
 ;;                 ahlinux))
 
+;; (define host-features
+;;   (list
+;;    (feature-host-info
+;;     #:host-name (ahname myhost)
+;;     #:timezone "Europe/Moscow")
+;;    (if (efi-sys?)
+;;        (feature-bootloader)
+;;        (feature-bootloader
+;;         #:bootloader-configuration
+;;         (bootloader-configuration
+;;          (bootloader grub-bootloader)
+;;          (targets '("/dev/sda")))))
+;;    (ahkernel myhost)
+;;    (feature-file-systems
+;;     #:file-systems
+;;     (cons (ahrootfs myhost)
+;;             (if (efi-sys?)
+;;                 (list (file-system
+;;                        (device (file-system-label "efi"))
+;;                        (mount-point "/boot/efi")
+;;                        (type "vfat")))
+;;                 '()))
+;;     #:swap-devices
+;;     (list (swap-space
+;;            (target "/swap/swapfile")
+;;            (discard? #t))))
+;;    ))
+
 (define host-features
   (list
    (feature-host-info
     #:host-name (ahname myhost)
     #:timezone "Europe/Moscow")
-   (if (efi-sys?)
-       (feature-bootloader)
-       (feature-bootloader
-        #:bootloader-configuration
-        (bootloader-configuration
-         (bootloader grub-bootloader)
-         (targets '("/dev/sda")))))
-   (ahkernel myhost)
+   (feature-kernel)
    (feature-file-systems
     #:file-systems
-    (cons (ahrootfs myhost)
-            (if (efi-sys?)
-                (list (file-system
-                       (device (file-system-label "efi"))
-                       (mount-point "/boot/efi")
-                       (type "vfat")))
-                '()))
-    #:swap-devices
-    (list (swap-space
-           (target "/swap/swapfile")
-           (discard? #t))))
+    (list
+     (file-system
+      (device (file-system-label "efi"))
+      (mount-point "/boot/efi")
+      (type "vfat"))
+     (file-system
+      (device (file-system-label "main"))
+      (mount-point "/")
+      (type "btrfs")
+      (options "compress=zstd,discard=async")
+      (flags '(no-atime)))))
    ))
 
 ;;;; GUI

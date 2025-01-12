@@ -1,37 +1,37 @@
 # args := if env('FIRST') == '1' {`gt -c 'min values at: substituteUrls asOption}
-substitutes := if env('FIRST', '1') == '1' { '--substitute-urls=https://bordeaux.guix.gnu.org\ https://cuirass.genenetwork.org\ http://ci.guix.trop.in' } else { '' }
-cfg:= 'cfg.scm'
+substitutes := if env('FIRST', '1') == '1' { '--substitute-urls=http://ci.guix.trop.in' } else { '' }
+cfg:= 'rc/main.scm'
 chans:= 'chans.scm'
-guixdir:= if path_exists('profile') == "true" { 'profile' } else { '~/.config/guix/current' }
-sudo:= 'sudo --preserve-env=GUIX_PROFILE,FIRST,HOSTNAME,FIRST'
-guix:= guixdir / 'bin/guix'
+profile:= 'trg/profile'
+guix:= profile / 'bin/guix'
+sudo:= 'sudo --preserve-env=GUIX_PROFILE,FIRST,HOSTNAME,FIRST,GUILE_LOAD_PATH TRG=sys'
 
-alias hc := homeCfg
-alias sc := sysCfg
+alias h := homeCfg
+alias s := sysCfg
 alias hb := homeBld
 alias sb := sysBld
 alias g := guix
 
 
+run *_:
+    {{_}}
 dwim: homeCfg sysCfg
-guix *_='describe':
-    {{guix}} {{_}}
+guix *_='describe': (run guix _)
 cfg *_ : (guix _ cfg substitutes)
+sudocfg c *_: (run sudo guix c cfg _ substitutes)
 home *_: (cfg 'home' _)
-sys *_:
-    {{sudo}} TRG='sys' just cfg system {{_}}
+sys *_: (sudocfg 'system ' + _)
 homeCfg: (home 'reconfigure')
 sysCfg: (sys 'reconfigure')
 homeBld: (home 'build')
 sysBld: (sys 'build')
-pull *_: (guix 'pull -C' chans _ substitutes)
-bump: && (pull '-p profile') pull (guix 'describe -f channels >' chans)
+pull *_: (run 'guix pull -C' chans _ substitutes)
+bump: && (pull '-p' profile) pull (guix 'describe -f channels >' chans)
     ./bump.scm {{chans}}
 
 vm: (sys 'vm')
 
-init:
-    {{sudo}} CFG='min' TRG='sys' guix system init {{cfg}} /mnt {{substitutes}}
+init: (sudocfg 'system init''/mnt')
 
 mount:
     sudo mount -L main -o subvolid=5 /mnt
