@@ -1,5 +1,14 @@
+stow:
+    sudo stow --dotfiles -t / -S soup
+
+init: && stow
+    sudo rm /usr/lib/systemd/system/guix-daemon.service
+
 c: consfigure
 
+lightdm:
+    mkdir /etc/lightdm/lightdm.conf.d
+    ln -sT /home/kyurivlis/c/deb/80-session-wrapper-sddm.conf /etc/lightdm/lightdm.conf.d/80-session-wrapper-sddm.conf
 
 ssh:
 	ssh-copy-id localhost
@@ -13,11 +22,10 @@ consfigure:
 	sbcl --eval '(ql:quickload :ouah.ml.consfig)' --eval '(in-package :ouah.ml.consfig)' --eval '(localhost)' --eval '(cl-user::quit)'
 
 nix:
+        nix-channel --add https://github.com/nixos.org/channels/nixpkgs-unstable nixpkgs
         ln -s ~/c/deb/nix ~/.config/
         nix-channel --add https://github.com/nix-community/nixGL/archive/main.tar.gz nixgl && nix-channel --update
         nix-env -iA nixgl.auto.nixGLDefault
 
 rust:
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-
-init: ssh nix cl consfigure rust

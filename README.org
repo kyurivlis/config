@@ -1,0 +1,12 @@
+#+title: Readme
+* Overview
+Config to setup my system and allow me to reinstall it every so often ;)
+- [ ] Consfigurator custom live installer image!!!
+  Y not just have combo of debian autoinstall then a shell script? While I'm sure that'll be pretty stable... I wonder how stable will the lispy approach be? Let's see!
+- [ ] Lots of little config files, let's write them in uniform way then symlink with help of stow.
+- [ ]
+- [ ]
+* Misc
+** Why not use guix system or even home?
+It's cool when my stuff just works on Debian Stable ;) Even writting a bit of XML isn't as bad as waiting for guix home to reconfigure 0_0
+Altho I do wanna experiment with some kind of configuration value thingie we'll see :) No need to use guix for it!

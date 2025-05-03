@@ -1,0 +1,28 @@
+# This is a "service unit file" for the systemd init system to launch
+# 'guix-daemon'.  Drop it in /etc/systemd/system or similar to have
+# 'guix-daemon' automatically started.
+
+[Unit]
+Description=Build daemon for GNU Guix
+
+[Service]
+ExecStart=/usr/bin/guix-daemon \
+    --build-users-group=_guixbuild --discover=no --substitute-urls="https://bordeaux.guix.gnu.org https://cuirass.genenetwork.org http://ci.guix.trop.in"
+Environment=LC_ALL=C.UTF-8
+StandardOutput=journal
+StandardError=journal
+
+# Work around a nasty systemd ‘feature’ that kills the entire process tree
+# (including the daemon!) if any child, such as cc1plus, runs out of memory.
+OOMPolicy=continue
+
+# Despite the name, this is rate-limited: a broken daemon will eventually fail.
+Restart=always
+
+# See <https://lists.gnu.org/archive/html/guix-devel/2016-04/msg00608.html>.
+# Some package builds (for example, go@1.8.1) may require even more than
+# 1024 tasks.
+TasksMax=8192
+
+[Install]
+WantedBy=multi-user.target
