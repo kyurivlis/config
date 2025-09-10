@@ -3,6 +3,7 @@
   #:use-module (gnu home services shepherd)
   #:use-module (gnu home services xdg)
   #:use-module (gnu home services)
+  #:use-module (gnu services base)
   #:use-module (gnu home-services ssh)
   #:use-module (gnu packages)
   #:use-module (gnu services)
@@ -14,8 +15,10 @@
   #:use-module (rde features android)
   #:use-module (rde features base)
   #:use-module (rde features wm)
+  #:use-module (gnu packages wm)
+  #:use-module (gnu services sddm)
+  #:use-module (gnu services ssh)
   #:use-module (rde features clojure)
-  #:use-module (rde features emacs-xyz)
   #:use-module (rde features gnupg)
   #:use-module (rde features irc)
   #:use-module (rde features keyboard)
@@ -24,6 +27,7 @@
   #:use-module (rde features password-utils)
   #:use-module (rde features security-token)
   #:use-module (rde features system)
+  #:use-module (gnu system)
   #:use-module (rde features xdg)
   #:use-module (rde features markup)
   #:use-module (rde features libreoffice)
@@ -40,9 +44,11 @@
   #:use-module (rde features bittorrent)
   #:use-module (rde features documentation)
   #:use-module (rde features emacs)
+  #:use-module (gnu packages emacs)
   #:use-module (rde features guile)
   #:use-module (rde features gtk)
   #:use-module (rde features emacs-xyz)
+  #:use-module (contrib packages emacs-xyz)
   #:use-module (rde features finance)
   #:use-module (rde features fontutils)
   #:use-module (rde features image-viewers)
@@ -94,6 +100,79 @@
 
 
 ;;; Service extensions
+
+(define* (feature-personal-emacs-config)
+  "Personal Emacs configuration with extra packages and settings."
+  (define f-name 'personal-emacs-config)
+
+  (define (get-home-services config)
+    (list
+     (rde-elisp-configuration-service
+      f-name
+      config
+      `((with-eval-after-load 'org
+          (setq org-use-speed-commands t)
+          (setq org-enforce-todo-dependencies t)
+          ;; (setq org-enforce-todo-checkbox-dependencies t)
+          (setq org-log-reschedule 'time)
+          (defun rde-org-goto-end-of-heading ()
+            (interactive)
+            (org-end-of-meta-data t)
+            (left-char)
+            (unless (string-blank-p (buffer-substring (line-beginning-position)
+                                                      (line-end-position)))
+              (newline)))
+          (define-key org-mode-map (kbd "M-o") 'rde-org-goto-end-of-heading))
+
+        (with-eval-after-load 'geiser-mode
+          (setq geiser-mode-auto-p nil)
+          (defun abcdw-geiser-connect ()
+            (interactive)
+            (geiser-connect 'guile "localhost" "37146"))
+
+          (define-key geiser-mode-map (kbd "C-c M-j") 'abcdw-geiser-connect))
+
+        (with-eval-after-load 'page-break-lines
+          (global-page-break-lines-mode 1))
+        (with-eval-after-load 'simple
+          (setq-default display-fill-column-indicator-column 80)
+          (add-hook 'prog-mode-hook 'display-fill-column-indicator-mode))
+
+        (setq copyright-names-regexp
+              (format "%s <%s>" user-full-name user-mail-address))
+        (add-hook 'after-save-hook (lambda () (copyright-update nil nil)))
+
+        (load-file "~/c/emacs/init.el"))
+      #:elisp-packages
+      (append
+       (list
+        ;; (@ (rde packages emacs-xyz) emacs-corfu-candidate-overlay)
+        )
+       (strings->packages
+        ;; "emacs-dirvish"
+        "emacs-elixir-mode"
+        "emacs-ekg"
+        "emacs-company-posframe"
+        "emacs-wgrep"
+        "emacs-ox-haunt"
+        "emacs-haskell-mode"
+        "emacs-rainbow-mode"
+        "emacs-hl-todo"
+        "emacs-yasnippet"
+        ;; "emacs-xkb-mode"
+        ;; "emacs-consult-dir"
+        "emacs-kind-icon"
+        "emacs-nginx-mode" "emacs-yaml-mode"
+        "emacs-multitran"
+        "emacs-minimap"
+        "emacs-ement"
+        "emacs-geiser"
+        "emacs-restart-emacs"
+        "emacs-org-present")))))
+  (feature
+   (name f-name)
+   (values `((,f-name . #t)))
+   (home-services-getter get-home-services)))
 
 (define home-extra-packages-service
   (simple-service
@@ -162,9 +241,24 @@ if [ -f $GUIX_PROFILE/etc/profile ]; then source $GUIX_PROFILE/etc/profile; fi
    home-environment-variables-service-type
    `(("PATH" . "$HOME/.local/bin:$HOME/.nix-profile/bin:$PATH"))))
 
+(define guix-substitutes-service
+  (simple-service
+   'guix-substitutes
+   guix-service-type
+   (guix-extension
+    (substitute-urls (list "https://substitutes.nonguix.org"))
+    (authorized-keys (list (plain-file "nonguix.pub" "(public-key (ecc (curve Ed25519) (q #C1FD53E5D4CE971933EC50C9F307AE2171A2D3B52C804642A7A35F84F3A4EA98#)))"))))))
+
 (define (feature-additional-services)
   (feature-custom-services
    #:feature-name-prefix 'kyurivlis
+   #:system-services
+   (list guix-substitutes-service
+         (service openssh-service-type)
+         (service sddm-service-type
+                  (sddm-configuration
+                   (auto-login-user "kyurivlis")
+                   (auto-login-session "stumpwm"))))
    #:home-services
    (list
     home-extra-packages-service
@@ -192,16 +286,17 @@ if [ -f $GUIX_PROFILE/etc/profile ]; then source $GUIX_PROFILE/etc/profile; fi
 (define general-features
   (append
    rde-base
-;;   rde-mail
+   rde-mail
    rde-emacs
+;;   rde-desktop
    rde-cli
    (list
-    (feature-librewolf)
+;;    (feature-librewolf)
     (feature-mpv)
     (feature-fonts)
     (feature-gtk3)
-    ;; (feature-emacs-ednc)
-    ;; (feature-transmission)
+     (feature-emacs-ednc)
+     (feature-transmission)
     )))
 
 (define %all-features
@@ -221,31 +316,44 @@ if [ -f $GUIX_PROFILE/etc/profile ]; then source $GUIX_PROFILE/etc/profile; fi
    (remove (lambda (f)
              (member
               (feature-name f)
-              '(base-services
-                swaylock
+              '(swaylock
+		base-services
                 xdg
+                emacs
                 kernel
                 )))
            %all-features)
    (list
+    (feature-emacs #:emacs emacs)
     (feature-xdg
-    #:xdg-user-directories-configuration
-    (home-xdg-user-directories-configuration
-     (music "$HOME/m/t")
-     (videos "$HOME/m/v")
-     (pictures "$HOME/m/p")
-     (documents "$HOME/m/d")
-     (download "$HOME/d")
-     (desktop "$HOME")
-     (publicshare "$HOME/shr")
-     (templates "$HOME/tpl")))
-    (feature-kernel
-     #:initrd-modules (list "btrfs"))
-    (feature-base-services
-     #:default-substitute-urls '("https://bordeaux.guix.gnu.org" "https://cuirass.genenetwork.org" "http://ci.guix.trop.in" "https://substitutes.nonguix.org")
-     #:guix-authorized-keys
-     (list (plain-file "nonguix.pub" "(public-key (ecc (curve Ed25519) (q #C1FD53E5D4CE971933EC50C9F307AE2171A2D3B52C804642A7A35F84F3A4EA98#)))")
-		   (plain-file "na" "(public-key (ecc (curve Ed25519) (q #9578AD6CDB23BA51F9C4185D5D5A32A7EEB47ACDD55F1CCB8CEE4E0570FBF961#)))")))
+     #:xdg-user-directories-configuration
+     (home-xdg-user-directories-configuration
+      (music "$HOME/m/t")
+      (videos "$HOME/m/v")
+      (pictures "$HOME/m/p")
+      (documents "$HOME/m/d")
+      (download "$HOME/d")
+      (desktop "$HOME")
+      (publicshare "$HOME/shr")
+      (templates "$HOME/tpl"))
+     )
+    (let ((f (feature-base-services)))
+      (feature
+       (values (feature-values f))
+       (system-services-getter
+	(lambda (c)
+	  (let ((s ((feature-system-services-getter f) c)))
+	    (modify-services s
+	      (guix-service-type config =>
+     				 (guix-configuration
+     				  (inherit config)
+     				  (substitute-urls
+     				   (list "https://bordeaux.guix.gnu.org" "http://ci.guix.trop.in"))))))))
+       ;; (home-services-getter (feature-home-services-getter f))
+       ))
+    (feature-base-packages
+     #:system-packages
+     (list stumpwm))
     )))
 
 (define-public %kyurivlis-features
@@ -253,6 +361,7 @@ if [ -f $GUIX_PROFILE/etc/profile ]; then source $GUIX_PROFILE/etc/profile; fi
    all-features-cooked
    (list
     (feature-additional-services)
+    (feature-personal-emacs-config)
     (feature-user-info
      #:user-name "kyurivlis"
      #:full-name "Yuri Kholodkov"
@@ -264,16 +373,16 @@ if [ -f $GUIX_PROFILE/etc/profile ]; then source $GUIX_PROFILE/etc/profile; fi
     (feature-gnupg
      ;; https://wiki.debian.org/GnuPG/AirgappedMasterKey glhf
      ;; last 16 chars of main key
-     #:gpg-primary-key "7F1A388DA6D2F8C8"
+     #:gpg-primary-key "336375295EE225EA"
      ;; authentication subkey
-     #:ssh-keys '(("B3B323E26BAA661F09143F782374A047917DE580")))
+     #:ssh-keys '(("CBCB7FD47A1D952A1052645638723B0A1B2B3ED1")))
     ;; (feature-security-token)
     ;; (feature-password-store
     ;;  #:password-store-directory "/data/kyurivlis/password-store"
     ;;  #:remote-password-store-url "ssh://kyurivlis@olorin.lan/~/state/password-store")
 
     (feature-mail-settings
-     #:mail-directory-fn (const "/data/kyurivlis/mail")
+     #:mail-directory-fn (const "/home/kyurivlis/m/e")
      #:mail-accounts (list
                       (mail-account
                        (id 'work)
@@ -306,11 +415,14 @@ if [ -f $GUIX_PROFILE/etc/profile ]; then source $GUIX_PROFILE/etc/profile; fi
                       (nick "kyurivlis"))))
 
     (feature-yggdrasil)
+
+    (feature-foot)
     (feature-i2pd
      #:outproxy 'http://acetone.i2p:3128
      ;; 'purokishi.i2p
      #:less-anonymous? #t)
 
+    (feature-clojure)
     ;(feature-android)
     ;(feature-javascript)
     ;(feature-ocaml #:opam? #t)
@@ -319,7 +431,7 @@ if [ -f $GUIX_PROFILE/etc/profile ]; then source $GUIX_PROFILE/etc/profile; fi
      #:user-name-fn (const "kyurivlis"))
     (feature-yt-dlp)
 
-    (feature-libreoffice)
+;;    (feature-libreoffice)
 
     (feature-keyboard
      ;; To get all available options, layouts and variants run:

@@ -1,11 +1,13 @@
 (define-module (rc main)
   #:use-module (rde features)
+  #:use-module (gnu system)
+  #:use-module (gnu services base)
   #:use-module (gnu services)
   #:use-module (srfi srfi-1)
   #:use-module (ice-9 match)
   #:use-module (rc hosts cloud)
   #:use-module (rc hosts live)
-  #:use-module (rc hosts marleng)
+  #:use-module (rc hosts zarya)
   #:use-module (rc users kyurivlis)
   #:use-module (rc users guest))
 
@@ -57,20 +59,22 @@
 ;; TODO: <https://www.labri.fr/perso/nrougier/GTD/index.html#table-of-contents>
 
 
-;;; marleng
+;;; zarya
 
-(define-public marleng-config
+(define zarya-config
   (rde-config
    (features
     (append
-     %marleng-features
-     %kyurivlis-features))))
+     %zarya-features
+     %kyurivlis-features))
+   ))
 
-(define-public marleng-os
-  (rde-config-operating-system marleng-config))
+(define-public zarya-os
+  (rde-config-operating-system zarya-config))
 
-(define-public marleng-he
-  (rde-config-home-environment marleng-config))
+
+(define-public zarya-he
+  (rde-config-home-environment zarya-config))
 
 
 ;;; live
@@ -96,27 +100,27 @@
 (define (dispatcher)
   (let ((rde-target (getenv "TRG")))
     (match rde-target
-      ("home" marleng-he)
-      ("sys" marleng-os)
+      ("home" zarya-he)
+      ("sys" zarya-os)
       ("live" live-os)
-      (_ marleng-he))))
+      (_ zarya-he))))
 
-;; (pretty-print-rde-config marleng-config)
+;; (pretty-print-rde-config zarya-config)
 ;; (use-modules (gnu services)
 ;;           (gnu services base))
 ;; (display
 ;;  (filter (lambda (x)
 ;;         (eq? (service-kind x) console-font-service-type))
-;;       (rde-config-system-services marleng-config)))
+;;       (rde-config-system-services zarya-config)))
 
 ;; (use-modules (rde features))
 ;; ((@ (ice-9 pretty-print) pretty-print)
-;;  (map feature-name (rde-config-features marleng-config)))
+;;  (map feature-name (rde-config-features zarya-config)))
 
 ;; ((@ (ice-9 pretty-print) pretty-print)
-;;  (rde-config-home-services marleng-config))
+;;  (rde-config-home-services zarya-config))
 
-;; (define br ((@ (rde api store) build-with-store) marleng-he))
+;; (define br ((@ (rde api store) build-with-store) zarya-he))
 (dispatcher)
 
 

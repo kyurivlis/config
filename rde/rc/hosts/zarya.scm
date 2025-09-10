@@ -1,10 +1,14 @@
-(define-module (rc hosts marleng)
+(define-module (rc hosts zarya)
   #:use-module (rde features base)
   #:use-module (rde features system)
   #:use-module (rde features wm)
   #:use-module (gnu system file-systems)
   #:use-module (gnu system mapped-devices)
-  #:use-module (ice-9 match))
+  #:use-module (ice-9 match)
+  #:use-module (nongnu packages linux)
+  #:use-module (nongnu system linux-initrd)
+  #:use-module (gnu bootloader grub)
+  #:use-module (gnu bootloader))
 
 
 ;;; Hardware/host specifis features
@@ -20,7 +24,7 @@
 ;;             (device "/dev/mapper/enc")
 ;;             (mount-point mount-point)
 ;;             (options (format #f "subvol=~a" subvol))
-;;             (dependencies marleng-mapped-devices))))
+;;             (dependencies zarya-mapped-devices))))
 ;;        '((@ . "/")
 ;;          (@boot . "/boot")
 ;;          (@gnu  . "/gnu")
@@ -35,20 +39,16 @@
 ;;     (lambda (x) (equal? (file-system-mount-point x) "/data"))
 ;;     btrfs-subvolumes)))
 
-(define marleng-file-systems
+(define zarya-file-systems
   (list
    (file-system
     (device (file-system-label "main"))
     (mount-point "/")
     (type "btrfs")
     (options "compress=zstd,discard=async")
-    (flags '(no-atime)))
-   (file-system
-    (device (file-system-label "efi"))
-    (mount-point "/boot/efi")
-    (type "vfat"))))
+    (flags '(no-atime)))))
 
-(define-public %marleng-features
+(define-public %zarya-features
   (list
    (feature-host-info
     #:host-name "nl"
@@ -56,7 +56,16 @@
     #:timezone  "Europe/Moscow")
    ;;; Allows to declare specific bootloader configuration,
    ;;; grub-efi-bootloader used by default
-   ;; (feature-bootloader)
+   (feature-bootloader
+    #:bootloader-configuration
+    (bootloader-configuration
+     (bootloader grub-bootloader)
+     (targets '("/dev/sda"))))
+   (feature-kernel
+    #:kernel linux-lts
+    #:initrd microcode-initrd
+    #:firmware (list linux-firmware)
+    #:kernel-arguments '("net.ifnames=0"))
    (feature-file-systems
-    #:file-systems   marleng-file-systems)
+    #:file-systems   zarya-file-systems)
    ))
