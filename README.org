@@ -1,0 +1,13 @@
+* About
+#+begin_quote
+This is my guix config. There are many like it, but this one is mine.
+#+end_quote
+
+* Features
+?soviet-style hostname?
+
+** Lalboard layout also usable on a laptop...
+On lalboard there is 10 keys with 5 directions a tap could be registered.
+Single taps I leave for function/symbol/number keys and use chording for english.
+On a laptop I spread out directional taps between 3 rows and 2 layers. And use a separate Sturdy layer instead of chording. Because of lack of integration between keyd and lithium.el, I map commands to either of the layers, but not both, depending on the mode. It also kinda sorta keeps layout compatible with vanilla emacs.
+Oh, and the whole thing is shifter one row up to allow for a bunch more thumb keys.

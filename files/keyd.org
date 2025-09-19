@@ -1,0 +1,143 @@
+#+begin_src conf :tangle /etc/keyd/default.conf
+  [ids]
+  ,*
+
+  [global]
+  chord_timeout = 50
+  chord_hold_timeout = 0
+  overload_tap_timeout = 0
+  oneshot_timeout = 0
+
+  [aliases]
+  9 = lparen
+  [ = lbracket
+
+
+  [main]
+    1 = v
+    2 = m
+    3 = l
+    4 = c
+    5 = p
+
+    q = s
+    w = t
+    e = r
+    r = d
+    t = y
+
+    a = z
+    s = k
+    d = q
+    f = g
+    g = w
+
+
+    8 = x
+    9 = f
+    0 = o
+    - = u
+    = = j
+
+    i = .
+    o = n
+    p = a
+    [ = e
+    ] = i
+
+    k = b
+    l = h
+    ; = '
+    ' = ;
+    \ = ,
+    enter = /
+
+  r = lettermod(updowntap, d, 70, 75)
+  o = lettermod(updowntap, n, 75, 75)
+  e = lettermod(updowntap, r, 70, 150)
+  p = lettermod(updowntap, a, 70, 150)
+  v = overload(control, space)
+  c = overload(alt, tab)
+  v+c = overload(ca, esc)
+
+  m = overload(meta, enter)
+  , = overload(shift, backspace)
+  m+, = overload(ms, delete)
+
+  space = overload(sideways, oneshot(sideways))
+
+  f9 = <
+  f10 = ^
+  f11 = _
+  f12 = >
+
+  [ca:C-A]
+
+  [ms:M-S]
+
+  [updowntap]
+
+  ,+m = ^
+  , = )
+  m = ]
+
+  o = -
+  9 = +
+  l = *
+
+  p = .
+  0 = &
+  ; = =
+
+  [ = \
+  - = |
+  ' = /
+
+  ] = _
+  = = >
+  \ = <
+
+  c+v = {
+  v = S-9
+  c = [
+
+  r = '
+  4 = `
+  f = "
+
+  e = S-3
+  3 = @
+  d = ,
+
+  w = ~
+  2 = $
+  s = %
+
+  q = :
+  1 = !
+  a = ?
+
+  [sideways]
+  v = 0
+  r = 2
+  e = 4
+  w = 6
+  q = 8
+  c = 1
+  4 = 3
+  3 = 5
+  2 = 7
+  1 = 9
+
+  , = ;
+  m = }
+  o = f13
+  9 = f14
+  p = f15
+  0 = f16
+  [ = f17
+  - = f18
+  ] = insert
+  = = f20
+
+#+end_src
