@@ -23,7 +23,67 @@
 
 (use-package symex-ide)
 
-(defun lalboard-keys-to-laptop (list)
+(progn
+  (defvar lalboard-laptop-keys-alist
+    '(("0^" . "<tab>")
+      ("0_" . "<space>")
+      ("0*" . "<escape>")
+      ("0>" . "0")
+      ("0<" . "1")
+
+      ("1^" . "d")
+      ("1_" . "c")
+      ("1*" . "g")
+      ("1>" . "2")
+      ("1<" . "3")
+
+      ("2^" . "r")
+      ("2_" . "l")
+      ("2*" . "q")
+      ("2>" . "4")
+      ("2<" . "5")
+
+      ("3^" . "t")
+      ("3_" . "m")
+      ("3*" . "k")
+      ("3>" . "6")
+      ("3<" . "7")
+
+      ("4^" . "s")
+      ("4_" . "v")
+      ("4*" . "z")
+      ("4>" . "8")
+      ("4<" . "9")
+
+      ("^0" . "<backspace>")
+      ("_0" . "<return>")
+      ("*0" . "<delete>")
+      (">0" . ";")
+      ("<0" . "}")
+
+      ("^1" . "n")
+      ("_1" . "f")
+      ("*1" . "h")
+      (">1" . "<XF86Tools>")
+      ("<1" . "<XF86Launch5>")
+
+      ("^2" . "a")
+      ("_2" . "o")
+      ("*2" . "")
+      (">2" . "<XF86Launch6>")
+      ("<2" . "<XF86Launch7>")
+
+      ("^3" . "e")
+      ("_3" . "u")
+      ("*3" . ";")
+      (">3" . "<XF86Launch8>")
+      ("<3" . "<XF86Launch9>")
+
+      ("^4" . "i")
+      ("_4" . "j")
+      ("*4" . ",")
+      (">4" . "<insert>")
+      ("<4" . "<XF86AudioMicMute>")))
   (defun process-da-list (l f)
     (cond
      ((null l) nil)
@@ -31,90 +91,28 @@
                             (process-da-list (cdr l) f)))
      (t (cons (funcall f (car l))
               (process-da-list (cdr l) f)))))
-
-  (defvar lalboard-laptop-keys-alist
-    '(("0*" . "<space>")
-      ("0^" . "<tab>")
-      ("0_" . "<escape>")
-      ("0>" . "0")
-      ("0<" . "1")
-
-      ("1*" . "d")
-      ("1^" . "c")
-      ("1_" . "g")
-      ("1>" . "2")
-      ("1<" . "3")
-
-      ("2*" . "r")
-      ("2^" . "l")
-      ("2_" . "'")
-      ("2>" . "4")
-      ("2<" . "5")
-
-      ("3*" . "t")
-      ("3^" . "m")
-      ("3_" . "k")
-      ("3>" . "6")
-      ("3<" . "7")
-
-      ("4*" . "s")
-      ("4^" . "v")
-      ("4_" . "z")
-      ("4>" . "8")
-      ("4<" . "9")
-
-      ("*0" . "<backspace>")
-      ("^0" . "<return>")
-      ("_0" . "<delete>")
-      (">0" . ";")
-      ("<0" . "}")
-
-      ("*1" . "n")
-      ("^1" . "f")
-      ("_1" . "h")
-      (">1" . "<XF86Tools>")
-      ("<1" . "<XF86Launch5>")
-
-      ("*2" . "a")
-      ("^2" . "o")
-      ("_2" . "\'")
-      (">2" . "<XF86Launch6>")
-      ("<2" . "<XF86Launch7>")
-
-      ("*3" . "e")
-      ("^3" . "u")
-      ("_3" . ";")
-      (">3" . "<XF86Launch8>")
-      ("<3" . "<XF86Launch9>")
-
-      ("*4" . "i")
-      ("^4" . "j")
-      ("_4" . ",")
-      (">4" . "<insert>")
-      ("<4" . "<XF86AudioMicMute>")))
-
-  (process-da-list
-   list
-   (lambda (el)
-     (if (stringp el)
-         (seq-let  (a b) (split-string el "-")
-           (let
-               ((k
-                 (alist-get (or b a) lalboard-laptop-keys-alist nil nil #'equal)))
-             (print (cons a (cons k b)))
-             (if k (if b (concat a "-"  k) k) el)))
-       el))))
-
-(defvar symex-layout
-  '(;; ("1" digit-argument)
-    ;; ("2" digit-argument)
-    ;; ("3" digit-argument)
-    ;; ("4" digit-argument)
-    ;; ("5" digit-argument)
-    ;; ("6" digit-argument)
-    ;; ("7" digit-argument)
-    ;; ("8" digit-argument)
-    ;; ("9" digit-argument)
+  (defun lalboard-keys-to-laptop (list)
+    (process-da-list
+     list
+     (lambda (el)
+       (if (stringp el)
+           (seq-let  (a b) (split-string el "-")
+             (let
+                 ((k
+                   (alist-get (or b a) lalboard-laptop-keys-alist nil nil #'equal)))
+               (print (cons a (cons k b)))
+               (if k (if b (concat a "-"  k) k) el)))
+         el))))
+  (defvar symex-layout
+    '(;; ("1" digit-argument)
+      ;; ("2" digit-argument)
+      ;; ("3" digit-argument)
+      ;; ("4" digit-argument)
+      ;; ("5" digit-argument)
+      ;; ("6" digit-argument)
+      ;; ("7" digit-argument)
+      ;; ("8" digit-argument)
+      ;; ("9" digit-argument)
 
     ("0*" symex-yank)
     ("0^" symex-goto-highest)
@@ -148,7 +146,7 @@
 
     ("s-2*" symex-evaluate-definition)
     ("s-2^" symex-editing-mode-exit)
-;    ("s-2_" )
+    ("s-2_" symex-evaluate-remaining)
     ("s-2>" symex-traverse-forward-skip)
     ("s-2<" symex-traverse-backward-skip)
 
@@ -170,7 +168,7 @@
     ("4>" forward-char)
     ("4<" backward-char)
 
-   ("s-4*" symex-editing-mode-exit)
+    ("s-4*" symex-editing-mode-exit)
     ("s-4^" scroll-down-command)
     ("s-4_" scroll-up-command)
     ("s-4>" forward-word)
@@ -235,10 +233,9 @@
     ("M-_4" symex--toggle-highlight)
     ("M->4" symex-repeat-pop)
     ("M-<4" symex-repeat-recent)))
-
-(eval
- `(lithium-define-keys symex-editing-mode
-                        ,(lalboard-keys-to-laptop symex-layout)))
+  (eval
+   `(lithium-define-keys symex-editing-mode
+                         ,(lalboard-keys-to-laptop symex-layout))))
 
 (use-package org-noter)
 

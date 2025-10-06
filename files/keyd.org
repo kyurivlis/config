@@ -49,8 +49,8 @@
     l = h
     ; = '
     ' = ;
-    \ = ,
-    enter = /
+    \ = /
+    enter = ,
 
   r = lettermod(updowntap, d, 70, 75)
   o = lettermod(updowntap, n, 75, 75)
@@ -65,11 +65,6 @@
   m+, = overload(ms, delete)
 
   space = overload(sideways, oneshot(sideways))
-
-  f9 = <
-  f10 = ^
-  f11 = _
-  f12 = >
 
   [ca:C-A]
 
@@ -94,8 +89,8 @@
   ' = /
 
   ] = _
-  = = >
-  \ = <
+  = = <
+  enter = >
 
   c+v = {
   v = S-9
